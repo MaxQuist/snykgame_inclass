@@ -27,7 +27,7 @@ pipeline
             {
                 snykSecurity 
                 {
-                    snykInstallation: 'Snyk',
+                    snykInstallation: 'snykgame',
                     snykTokenId: 'snykid',
                     severity: 'critical'
                 }
