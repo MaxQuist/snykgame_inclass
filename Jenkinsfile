@@ -27,7 +27,7 @@ node('ubuntu-Appserver-3120')
     }
     stage('Post-to-dockerhub')
     {
-        docker.withRegistry('https://registry.hub.docker.com', 'xamq')
+        docker.withRegistry('https://registry.hub.docker.com', 'maxq')
         {
          app.push("latest")
         }
