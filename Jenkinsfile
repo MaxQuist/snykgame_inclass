@@ -25,7 +25,12 @@ pipeline
             }
             steps
             {
-                echo "SNYK TEST"
+                snykSecurity 
+                {
+                    snykInstallation: 'Snyk',
+                    snykTokenId: 'snykid',
+                    severity: 'critical'
+                }
             }
 
         }
