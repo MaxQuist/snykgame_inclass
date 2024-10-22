@@ -1,88 +1,42 @@
-pipeline
+node('ubuntu-Appserver-3120')
 {
-    agent none
-
-    stages
+    def app
+    stage('Cloning Git')
     {
-        stage('cloning git repo')
+    /* Let's make sure we have the repository cloned to our workspace */
+    checkout scm
+    }
+ 
+      stage('SCA-SAST-SNYK-TEST') 
+      {
+       agent 
+       {
+         label 'ubuntu-Appserver-3120'
+       }
+         snykSecurity(
+            snykInstallation: 'Snyk',
+            snykTokenId: 'snykid',
+            severity: 'critical'
+         )
+       }
+    stage('Build-and-Tag')
+    {
+        /* This builds the actual image; 
+        * This is synonymous to docker build on the command line */
+        app = docker.build("xamq/snyk")
+    }
+    stage('Post-to-dockerhub')
+    {
+        docker.withRegistry('https://registry.hub.docker.com', 'xamq')
         {
-            agent
-            {
-                label 'ubuntu-Appserver-3120'
-            }
-            steps
-            {
-                checkout scm
-            }
-
-        }
-
-        stage('SCA-SAST-SNYK-TEST')
-        {
-            agent
-            {
-                label 'ubuntu-Appserver-3120'
-            }
-            steps
-            {
-                snykSecurity 
-                (
-                    snykInstallation: 'Snyk',
-                    snykTokenId: 'snykid',
-                    severity: 'critical'
-                )
-            }
-
-        }
-
-        stage('Build and Tag')
-        {
-            agent
-            {
-                label 'ubuntu-Appserver-3120'
-            }
-            steps
-            {
-                script
-                {
-                    def app = docker.build("xamq/snyk")
-                    app.tag("latest")
-                }
-            }
-
-        }
-
-        stage('Push to docker')
-        {
-            agent
-            {
-                label 'ubuntu-Appserver-3120'
-            }
-            steps
-            {
-                script
-                {
-                    docker.withRegistry("https://registry.hub.docker.com", "maxq")
-                    {
-                        def app = docker.image("xamq/snyk")
-                    }
-                }
-            }
-
-        }
-
-        stage('Deploy')
-        {
-            agent
-            {
-                label 'ubuntu-Appserver-3120'
-            }
-            steps
-            {
-                sh "docker-compose down"
-                sh "docker-compose up -d"
-            }
-
+         app.push("latest")
         }
     }
+ 
+    stage('Pull-image-server')
+    {
+        sh "docker-compose down"
+        sh "docker-compose up -d"
+    }
+ 
 }
