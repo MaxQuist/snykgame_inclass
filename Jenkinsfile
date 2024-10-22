@@ -26,11 +26,11 @@ pipeline
             steps
             {
                 snykSecurity 
-                {
-                    snykInstallation: 'snykgame',
+                (
+                    snykInstallation: 'Snyk',
                     snykTokenId: 'snykid',
                     severity: 'critical'
-                }
+                )
             }
 
         }
